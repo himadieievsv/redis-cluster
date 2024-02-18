@@ -1,0 +1,48 @@
+name: Push Docker Image
+
+on:
+  push:
+    branches:
+      - build-images-automatically
+
+jobs:
+  push_to_registry:
+    name: Push Docker image to Docker Hub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        run: |
+          MAJOR_VERSION="6"
+          MINOR_VERSION="0"
+          
+          # Make the API request to list tags
+          response=$(curl -s "https://api.github.com/repos/redis/redis/git/refs/tags")
+          # Parse the JSON response to extract tags
+          latest_tag=$(echo "$response" | jq -r '.[].ref' | grep "^refs/tags/6$MAJOR_VERSION\.$MINOR_VERSION\." | tail -n 1)
+          extracted_version=$(echo "$latest_tag" | sed 's/refs\/tags\///')
+          
+          docker pull "himadieievsv/redis-cluster:$extracted_version" > /dev/null 2>&1
+
+          # Check the exit code of the pull command
+          if [ $? -ne 0 ]; then
+             echo "Tag $extracted_version exists for himadieievsv/redis-cluster"
+             echo "Exiting the script"
+             exit 0
+          fi
+          
+          major_tag=$MAJOR_VERSION.$MINOR_VERSION
+          docker build --build-arg redis_version=$extracted_version -t current_build .
+          docker tag current_build himadieievsv/redis-cluster:$extracted_version
+          docker tag current_build himadieievsv/redis-cluster:$major_tag
+
+          docker push himadieievsv/redis-cluster:$extracted_version
+          docker push himadieievsv/redis-cluster:$major_tag
