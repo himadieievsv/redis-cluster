@@ -28,7 +28,7 @@ jobs:
           # Make the API request to list tags
           response=$(curl -s "https://api.github.com/repos/redis/redis/git/refs/tags")
           # Parse the JSON response to extract tags
-          latest_tag=$(echo "$response" | jq -r '.[].ref' | grep "^refs/tags/6$MAJOR_VERSION\.$MINOR_VERSION\." | tail -n 1)
+          latest_tag=$(echo "$response" | jq -r '.[].ref' | grep "^refs/tags/$MAJOR_VERSION\.$MINOR_VERSION\." | tail -n 1)
           extracted_version=$(echo "$latest_tag" | sed 's/refs\/tags\///')
           
           docker pull "himadieievsv/redis-cluster:$extracted_version" > /dev/null 2>&1
