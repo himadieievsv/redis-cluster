@@ -1,9 +1,9 @@
 name: Push Docker Image
 
+
 on:
-  push:
-    branches:
-      - build-images-automatically
+  schedule:
+    - cron:  '0 15 * * *'
 
 jobs:
   push_to_registry:

@@ -1,9 +1,8 @@
 name: Push Latest Docker Image
 
 on:
-  push:
-    branches:
-      - build-images-automatically
+  schedule:
+    - cron:  '0 14 * * *'
 
 jobs:
   push_to_registry:
