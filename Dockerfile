@@ -27,7 +27,7 @@ RUN (mkdir /redis-build && cd /redis && make PREFIX=/redis-build install)
 FROM alpine:latest
 
 RUN apk update && \
-    apk add net-tools supervisor && \
+    apk add runit && \
     apk cache clean
 
 RUN mkdir /redis-conf /redis-data /etc/supervisor/ /var/log/supervisor
@@ -35,11 +35,11 @@ COPY redis-cluster.tmpl /redis-conf/redis-cluster.tmpl
 COPY redis.tmpl         /redis-conf/redis.tmpl
 COPY sentinel.tmpl      /redis-conf/sentinel.tmpl
 COPY docker-entrypoint.sh /docker-entrypoint.sh
-COPY generate-supervisor-conf.sh /generate-supervisor-conf.sh
-COPY --from=0 /redis-build /redis-build
+COPY run-servers.sh /run-servers.sh
+COPY --from=0 /redis-build/* /usr/local/bin/
 
 RUN chmod 755 /docker-entrypoint.sh \
-    && chmod 755 /generate-supervisor-conf.sh
+    && chmod 755 /run-servers.sh
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["redis-cluster"]

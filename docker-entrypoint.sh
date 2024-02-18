@@ -84,16 +84,9 @@ if [ "$1" = 'redis-cluster' ]; then
 
     done
 
-    sh /generate-supervisor-conf.sh $INITIAL_PORT $max_port > /etc/supervisor/supervisord.conf
+    sh /run-servers.sh $INITIAL_PORT $max_port
 
-    supervisord -c /etc/supervisor/supervisord.conf
-    sleep 3
-
-    #
-    ## Check the version of redis-cli and if we run on a redis server below 5.0
-    ## If it is below 5.0 then we use the redis-trib.rb to build the cluster
-    #
-    /redis-build/bin/redis-cli --version | grep -E "redis-cli 3.0|redis-cli 3.2|redis-cli 4.0"
+    redis-cli --version | grep -E "redis-cli 3.0|redis-cli 3.2|redis-cli 4.0"
 
     if [ $? -eq 0 ]
     then
@@ -101,7 +94,7 @@ if [ "$1" = 'redis-cluster' ]; then
       exit 1 
     else
       echo "Using redis-cli to create the cluster"
-      echo "yes" | eval /redis-build/bin/redis-cli --cluster create --cluster-replicas "$SLAVES_PER_MASTER" "$nodes"
+      echo "yes" | eval redis-cli --cluster create --cluster-replicas "$SLAVES_PER_MASTER" "$nodes"
     fi
 
     if [ "$SENTINEL" = "true" ]; then
@@ -110,7 +103,7 @@ if [ "$1" = 'redis-cluster' ]; then
       done
     fi
 
-    tail -f /var/log/supervisor/redis*.log
+    tail -f /var/log/redis/redis*.log
 else
   exec "$@"
 fi
