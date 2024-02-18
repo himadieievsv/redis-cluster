@@ -9,6 +9,9 @@ jobs:
   push_to_registry:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        major_tag: [ 6.0, 6.2, 7,0, 7.2 ]
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
@@ -21,10 +24,7 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          MAJOR_VERSION="6"
-          MINOR_VERSION="0"
-          
-          major_tag=$MAJOR_VERSION.$MINOR_VERSION
+          major_tag=${{ matrix.major_tag }}
           
           # Make the API request to list tags
           response=$(curl -s "https://api.github.com/repos/redis/redis/git/refs/tags")
