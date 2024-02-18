@@ -7,7 +7,7 @@ on:
 
 jobs:
   push_to_registry:
-    name: Push Docker image to Docker Hub
+    name: Build and Push Docker Image
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -33,7 +33,7 @@ jobs:
           extracted_version=$(echo "$latest_tag" | sed 's/refs\/tags\///')
           
           docker pull "himadieievsv/redis-cluster:$extracted_version" > /dev/null 2>&1 || { 
-             echo "Tag not exists in the registry"
+             echo "Tag exists in the registry"
              continue_var=true
           }
 
