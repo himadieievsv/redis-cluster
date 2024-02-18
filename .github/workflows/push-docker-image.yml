@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        major_tag: [ 6.0, 6.2, 7.0, 7.2 ]
+        major_tag: [ "6.0", "6.2", "7.0", "7.2" ]
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
