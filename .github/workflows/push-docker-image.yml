@@ -31,10 +31,13 @@ jobs:
           latest_tag=$(echo "$response" | jq -r '.[].ref' | grep "^refs/tags/$MAJOR_VERSION\.$MINOR_VERSION\." | tail -n 1)
           extracted_version=$(echo "$latest_tag" | sed 's/refs\/tags\///')
           
-          docker pull "himadieievsv/redis-cluster:$extracted_version" > /dev/null 2>&1
+          docker pull "himadieievsv/redis-cluster:$extracted_version" > /dev/null 2>&1 || { 
+             echo "Tag not exists in the registry"
+             continue_var=true
+          }
 
           # Check the exit code of the pull command
-          if [ $? -ne 0 ]; then
+          if [ ! -v continue_var ]; then
              echo "Tag $extracted_version exists for himadieievsv/redis-cluster"
              echo "Exiting the script"
              exit 0
