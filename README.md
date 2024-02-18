@@ -58,4 +58,4 @@ You can find it in the file [LICENSE](LICENSE)
 
 
 # Credits
-Forked from [docker-redis-cluster](https://github.com/Grokzen/docker-redis-cluster)
+Originally inspired by [docker-redis-cluster](https://github.com/Grokzen/docker-redis-cluster)
