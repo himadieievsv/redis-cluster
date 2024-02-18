@@ -1,9 +1,7 @@
-name: Docker Image CI
+name: Test Docker Image build
 
 on:
   push:
-    branches:
-      - master
 
 jobs:
   build:
