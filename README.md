@@ -2,7 +2,7 @@
 
 Minimalistic Redis Cluster Docker Image.
 
-This Docker image provides a Redis Cluster setup based on the official Redis distributive. It is designed to easily deploy a Redis Cluster environment for various use cases. Image have small size footprint.
+This Docker image provides a Redis Cluster setup based on the official Redis distribution. It is designed to easily deploy a Redis Cluster environment for various use cases. The image has a small footprint in terms of size.
 
 # Build
 
@@ -44,11 +44,17 @@ If the flag `"SENTINEL=true"` is passed there are 3 Sentinel nodes running on po
 Check the [docker-entrypoint.sh](docker-entrypoint.sh) file for details on how parameters influence cluster setup.
 
 # Version support list
-Redis 7.0.x version:
-- 7.0.10
-  
-Redis 7.2.x version:
-- 7.2.4
+Redis **7.2.x** version:
+- [7.2.x versions list](https://hub.docker.com/r/himadieievsv/redis-cluster/tags?page=1&name=7.2.)
+
+Redis **7.0.x** version:
+- [7.0.x versions list](https://hub.docker.com/r/himadieievsv/redis-cluster/tags?page=1&name=7.0.)
+
+Redis **6.2.x** version:
+- [6.2.x versions list](https://hub.docker.com/r/himadieievsv/redis-cluster/tags?page=1&name=6.2.)
+
+Redis **6.0.x** version:
+- [6.0.x versions list](https://hub.docker.com/r/himadieievsv/redis-cluster/tags?page=1&name=6.0.)
 
 # License
 
