@@ -56,6 +56,14 @@ Redis **6.2.x** version:
 Redis **6.0.x** version:
 - [6.0.x versions list](https://hub.docker.com/r/himadieievsv/redis-cluster/tags?page=1&name=6.0.)
 
+### Choosing latest image
+
+- `himadieievsv/redis-cluster:latest` - points to the latest Redis version build.
+- `himadieievsv/redis-cluster:7.2` - points to the latest version among available builds for 7.2.x.
+- `himadieievsv/redis-cluster:7.0` - points to the latest version among available builds for 7.0.x.
+- `himadieievsv/redis-cluster:6.2` - points to the latest version among available builds for 6.2.x.
+- `himadieievsv/redis-cluster:6.0` - points to the latest version among available builds for 6.0.x.
+
 # License
 
 This repo is using the MIT LICENSE.
