@@ -8,7 +8,7 @@ ENV DEBIAN_FRONTEND noninteractive
 
 # Install system dependencies
 RUN apk update \
-    && apk add --no-cache wget tar gcc make g++ alpine-sdk libc6-compat tcl
+    && apk add --no-cache wget tar gcc make g++ alpine-sdk libc6-compat linux-headers tcl
 
 # Ensure UTF-8 lang and locale
 ENV LANG       "C.UTF-8"
