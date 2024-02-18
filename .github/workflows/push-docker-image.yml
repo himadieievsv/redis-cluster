@@ -21,6 +21,7 @@ jobs:
 
       - name: Build and push Docker image
         run: |
+          set -x
           MAJOR_VERSION="6"
           MINOR_VERSION="0"
           
