@@ -8,7 +8,7 @@ This Docker image provides a Redis Cluster setup based on the official Redis dis
 
 Run build with Docker build command:
 ```bash
-docker build -t<image name>:<image tag> . 
+docker build --build-arg redis_version=7.2.4 -t my-image:tag . 
 ```
 
 # Usage
