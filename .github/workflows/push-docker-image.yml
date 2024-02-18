@@ -1,7 +1,9 @@
 name: Push Docker Image
 
+
 on:
-  push:
+  schedule:
+    - cron:  '0 15 * * *'
 
 jobs:
   push_to_registry:
