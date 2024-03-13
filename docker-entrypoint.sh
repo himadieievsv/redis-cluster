@@ -1,5 +1,15 @@
 #!/bin/sh
 
+check_service() {
+    local check_host="$1"
+    local check_port="$2"
+    if nc -z "$check_host" "$check_port"; then
+        return 0
+    else
+        return 1
+    fi
+}
+
 if [ "$1" = 'redis-cluster' ]; then
     # Allow passing in cluster IP by argument or environmental variable
     IP="${2:-$IP}"
@@ -94,6 +104,13 @@ if [ "$1" = 'redis-cluster' ]; then
       exit 1 
     else
       echo "Using redis-cli to create the cluster"
+      for port in `seq $INITIAL_PORT $max_port`; do
+        while ! check_service "$BIND_ADDRESS" "$port"; do
+            echo "Waiting for Redis to become available on $BIND_ADDRESS:$port..."
+            sleep 1
+        done
+        echo "Redis is available on $BIND_ADDRESS:$port"
+      done
       echo "yes" | eval redis-cli --cluster create --cluster-replicas "$SLAVES_PER_MASTER" "$nodes"
     fi
 
