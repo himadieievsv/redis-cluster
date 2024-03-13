@@ -3,26 +3,25 @@
 initial_port="$1"
 max_port="$2"
 
-mkdir -p /var/log/redis /var/service/
-runsvdir -P /var/service &
+mkdir -p /var/log/redis /var/service/ /etc/sv
 
 service_template ()
 {
   local port=$1
-  local count=$2
   echo "#!/bin/sh
-/usr/local/bin/redis-server /redis-conf/$port/redis.conf --logfile /var/log/redis/redis-$count.log
+/usr/local/bin/redis-server /redis-conf/$port/redis.conf --logfile /var/log/redis/redis-$port.log
 "
 }
 
-
-count=1
 for port in `seq $initial_port $max_port`; do
-  mkdir -p /etc/sv/redis-$count
-  service_template $port $count > /etc/sv/redis-$count/run
-  chmod +x /etc/sv/redis-$count/run
-  ln -s /etc/sv/redis-$count /var/service/
-  count=$((count + 1))
+  mkdir -p /etc/sv/redis-$port
+  service_template $port > /etc/sv/redis-$port/run
+  chmod +x /etc/sv/redis-$port/run
+  ln -s /etc/sv/redis-$port /var/service/
 done
 
+runsvdir -P /var/service &
 sleep 3
+
+# Service status output and starting in case if not started yet for any reason
+sv -v start /var/service/*
