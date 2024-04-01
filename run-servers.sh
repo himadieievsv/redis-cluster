@@ -17,7 +17,7 @@ for port in `seq $initial_port $max_port`; do
   mkdir -p /etc/sv/redis-$port
   service_template $port > /etc/sv/redis-$port/run
   chmod +x /etc/sv/redis-$port/run
-  ln -s /etc/sv/redis-$port /var/service/
+  ln -s /etc/sv/redis-$port /var/service/ || true
 done
 
 runsvdir -P /var/service &
