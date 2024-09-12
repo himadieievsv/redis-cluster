@@ -25,23 +25,25 @@ jobs:
         run: |
           major_tag=${{ matrix.major_tag }}
           
+
           # Make the API request to list tags
           response=$(curl -s "https://api.github.com/repos/redis/redis/git/refs/tags")
           # Parse the JSON response to extract tags
+
           latest_tag=$(echo "$response" | jq -r '.[].ref' | grep "^refs/tags/$major_tag\." | tail -n 1)
           extracted_version=$(echo "$latest_tag" | sed 's/refs\/tags\///')
-          
-          docker pull "himadieievsv/redis-cluster:$extracted_version" > /dev/null 2>&1 || { 
-             echo "Tag exists in the registry"
-             continue_var=true
-          }
-
-          # Check the exit code of the pull command
-          if [ ! -v continue_var ]; then
-             echo "Tag $extracted_version exists for himadieievsv/redis-cluster"
-             echo "Exiting the script"
-             exit 0
-          fi
+# Rebuild images for all major tags
+#          docker pull "himadieievsv/redis-cluster:$extracted_version" > /dev/null 2>&1 || {
+#             echo "Tag exists in the registry"
+#             continue_var=true
+#          }
+#
+#          # Check the exit code of the pull command
+#          if [ ! -v continue_var ]; then
+#             echo "Tag $extracted_version exists for himadieievsv/redis-cluster"
+#             echo "Exiting the script"
+#             exit 0
+#          fi
 
           docker build --build-arg redis_version=$extracted_version -t current_build .
           docker tag current_build himadieievsv/redis-cluster:$extracted_version
