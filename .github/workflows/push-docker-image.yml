@@ -2,11 +2,11 @@ name: Push Docker Images for Major tags
 
 on:
   schedule:
-    - cron:  '15 * * * *'
+    - cron:  '15,35 * * * *'
 
 jobs:
   push_to_registry:
-    name: Build and Push Docker Image
+    name: Push Docker Images for Major tags Job
     runs-on: ubuntu-latest
     strategy:
       matrix:
