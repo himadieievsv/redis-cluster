@@ -2,7 +2,7 @@ name: Push Docker Images for Major tags
 
 on:
   schedule:
-    - cron:  '15,35 * * * *'
+    - cron:  '0 10,22 * * *'
 
 jobs:
   push_to_registry:
