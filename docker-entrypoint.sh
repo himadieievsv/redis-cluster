@@ -57,17 +57,17 @@ if [ "$1" = 'redis-cluster' ]; then
       mkdir -p /redis-conf/${port}
       mkdir -p /redis-data/${port}
 
-      if [ -e /redis-data/${port}/nodes.conf ]; then
-        rm /redis-data/${port}/nodes.conf
-      fi
-
-      if [ -e /redis-data/${port}/dump.rdb ]; then
-        rm /redis-data/${port}/dump.rdb
-      fi
-
-      if [ -e /redis-data/${port}/appendonly.aof ]; then
-        rm /redis-data/${port}/appendonly.aof
-      fi
+#      if [ -e /redis-data/${port}/nodes.conf ]; then
+#        rm /redis-data/${port}/nodes.conf
+#      fi
+#
+#      if [ -e /redis-data/${port}/dump.rdb ]; then
+#        rm /redis-data/${port}/dump.rdb
+#      fi
+#
+#      if [ -e /redis-data/${port}/appendonly.aof ]; then
+#        rm /redis-data/${port}/appendonly.aof
+#      fi
 
       if [ "$port" -lt "$first_standalone" ]; then
         echo "$redis_cluster_template" | \
