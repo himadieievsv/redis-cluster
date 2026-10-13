@@ -23,7 +23,7 @@ jobs:
           
           response=$(curl -s "https://api.github.com/repos/redis/redis/releases/latest" )
           
-          major_tag=$(echo "$response" | jq .name -r)
+          major_tag=$(echo "$response" | jq .tag_name -r)
           target_commitish=$(echo "$response" | jq .target_commitish -r)
           
           
