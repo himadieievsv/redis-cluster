@@ -143,7 +143,13 @@ if [ "$1" = 'redis-cluster' ]; then
     else
       echo "Using redis-cli to create the cluster"
       for port in `seq $INITIAL_PORT $max_port`; do
+        retries=0
         while ! check_service "$BIND_ADDRESS" "$port"; do
+            retries=$((retries + 1))
+            if [ "$retries" -ge 60 ]; then
+              echo "ERROR: Redis did not start on $BIND_ADDRESS:$port after 60 seconds"
+              exit 1
+            fi
             echo "Waiting for Redis to become available on $BIND_ADDRESS:$port..."
             sleep 1
         done
@@ -151,7 +157,10 @@ if [ "$1" = 'redis-cluster' ]; then
         eval redis-cli -h $BIND_ADDRESS -p $port FLUSHALL || true
         eval redis-cli -h $BIND_ADDRESS -p $port CLUSTER FORGET || true
       done
-      echo "yes" | eval redis-cli --cluster create --cluster-replicas "$SLAVES_PER_MASTER" "$nodes"
+      if ! echo "yes" | eval redis-cli --cluster create --cluster-replicas "$SLAVES_PER_MASTER" "$nodes"; then
+        echo "ERROR: Cluster creation failed"
+        exit 1
+      fi
     fi
 
     if [ "$SENTINEL" = "true" ]; then
