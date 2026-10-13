@@ -122,9 +122,11 @@ if [ "$1" = 'redis-cluster' ]; then
 
       if [ "$port" -lt $(($INITIAL_PORT + $MASTERS)) ]; then
         if [ "$SENTINEL" = "true" ]; then
+          sentinel_quorum=$((MASTERS / 2 + 1))
           echo "$redis_sentinel_template" | \
               sed -e "s/\${SENTINEL_PORT}/$((port - 2000))/g" \
                   -e "s/\${PORT}/${port}/g" \
+                  -e "s/\${SENTINEL_QUORUM}/${sentinel_quorum}/g" \
               > /redis-conf/sentinel-${port}.conf
           cat /redis-conf/sentinel-${port}.conf
         fi
