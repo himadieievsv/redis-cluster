@@ -155,7 +155,7 @@ if [ "$1" = 'redis-cluster' ]; then
     fi
 
     if [ "$SENTINEL" = "true" ]; then
-      for port in $(seq $INITIAL_PORT $(($INITIAL_PORT + $MASTERS))); do
+      for port in $(seq $INITIAL_PORT $(($INITIAL_PORT + $MASTERS - 1))); do
         redis-sentinel /redis-conf/sentinel-${port}.conf &
       done
     fi
