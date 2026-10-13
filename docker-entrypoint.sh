@@ -149,7 +149,6 @@ if [ "$1" = 'redis-cluster' ]; then
         done
         echo "Redis is available on $BIND_ADDRESS:$port"
         eval redis-cli -h $BIND_ADDRESS -p $port FLUSHALL || true
-        eval redis-cli -h $BIND_ADDRESS -p $port CLUSTER FORGET || true
       done
       echo "yes" | eval redis-cli --cluster create --cluster-replicas "$SLAVES_PER_MASTER" "$nodes"
     fi
