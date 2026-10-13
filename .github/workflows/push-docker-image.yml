@@ -25,10 +25,10 @@ jobs:
           
 
           # Make the API request to list tags
-          response=$(curl -s "https://api.github.com/repos/redis/redis/git/refs/tags")
+          response=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/redis/redis/git/refs/tags")
           # Parse the JSON response to extract tags
 
-          latest_tag=$(echo "$response" | jq -r '.[].ref' | grep "^refs/tags/$major_tag\." | tail -n 1)
+          latest_tag=$(echo "$response" | jq -r '.[].ref' | grep "^refs/tags/$major_tag\." | sort -V | tail -n 1)
           extracted_version=$(echo "$latest_tag" | sed 's/refs\/tags\///')
 
           docker build --build-arg redis_version=$extracted_version -t current_build .
