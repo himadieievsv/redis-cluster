@@ -134,25 +134,17 @@ if [ "$1" = 'redis-cluster' ]; then
 
     sh /run-servers.sh $INITIAL_PORT $max_port
 
-    redis-cli --version | grep -E "redis-cli 3.0|redis-cli 3.2|redis-cli 4.0"
-
-    if [ $? -eq 0 ]
-    then
-      echo "Old redis-trib.rb is not supported"
-      exit 1 
-    else
-      echo "Using redis-cli to create the cluster"
-      for port in `seq $INITIAL_PORT $max_port`; do
-        while ! check_service "$BIND_ADDRESS" "$port"; do
-            echo "Waiting for Redis to become available on $BIND_ADDRESS:$port..."
-            sleep 1
-        done
-        echo "Redis is available on $BIND_ADDRESS:$port"
-        eval redis-cli -h $BIND_ADDRESS -p $port FLUSHALL || true
-        eval redis-cli -h $BIND_ADDRESS -p $port CLUSTER FORGET || true
+    echo "Using redis-cli to create the cluster"
+    for port in `seq $INITIAL_PORT $max_port`; do
+      while ! check_service "$BIND_ADDRESS" "$port"; do
+          echo "Waiting for Redis to become available on $BIND_ADDRESS:$port..."
+          sleep 1
       done
-      echo "yes" | eval redis-cli --cluster create --cluster-replicas "$SLAVES_PER_MASTER" "$nodes"
-    fi
+      echo "Redis is available on $BIND_ADDRESS:$port"
+      eval redis-cli -h $BIND_ADDRESS -p $port FLUSHALL || true
+      eval redis-cli -h $BIND_ADDRESS -p $port CLUSTER FORGET || true
+    done
+    echo "yes" | eval redis-cli --cluster create --cluster-replicas "$SLAVES_PER_MASTER" "$nodes"
 
     if [ "$SENTINEL" = "true" ]; then
       for port in $(seq $INITIAL_PORT $(($INITIAL_PORT + $MASTERS))); do
