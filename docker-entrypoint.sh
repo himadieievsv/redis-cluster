@@ -40,6 +40,43 @@ if [ "$1" = 'redis-cluster' ]; then
       BIND_ADDRESS=0.0.0.0
     fi
 
+    # Resolve cluster announce IP.
+    # Precedence: CLUSTER_ANNOUNCE_IP > IP (legacy) > auto-detect via hostname -i
+    if [ -z "$CLUSTER_ANNOUNCE_IP" ]; then
+      if [ -n "$IP" ] && [ "$IP" != "0.0.0.0" ]; then
+        CLUSTER_ANNOUNCE_IP="$IP"
+      else
+        # Default to first non-loopback address from hostname -i
+        CLUSTER_ANNOUNCE_IP=$(hostname -i 2>/dev/null | tr ' ' '\n' | grep -v '^127\.' | grep -v '^::' | grep -v '^$' | head -n1)
+        if [ -z "$CLUSTER_ANNOUNCE_IP" ]; then
+          CLUSTER_ANNOUNCE_IP=$(hostname -i 2>/dev/null | awk '{print $1}')
+        fi
+        if [ -z "$CLUSTER_ANNOUNCE_IP" ]; then
+          CLUSTER_ANNOUNCE_IP=127.0.0.1
+        fi
+      fi
+    fi
+
+    echo " -- CLUSTER_ANNOUNCE_IP Before trim: '$CLUSTER_ANNOUNCE_IP'"
+    CLUSTER_ANNOUNCE_IP=$(echo ${CLUSTER_ANNOUNCE_IP}) # trim whitespaces
+    CLUSTER_ANNOUNCE_IP=${CLUSTER_ANNOUNCE_IP%% *} # use the first ip
+    # If a hostname was given (e.g. IP=redis-cluster), resolve it to an IP
+    # since cluster-announce-ip requires an IP address.
+    case "$CLUSTER_ANNOUNCE_IP" in
+      *[^0-9.]*)
+        _resolved=$(getent hosts "$CLUSTER_ANNOUNCE_IP" 2>/dev/null | awk '{print $1; exit}')
+        if [ -n "$_resolved" ]; then
+          echo " -- CLUSTER_ANNOUNCE_IP Resolved '$CLUSTER_ANNOUNCE_IP' to '$_resolved'"
+          CLUSTER_ANNOUNCE_IP="$_resolved"
+        else
+          echo " -- WARNING: CLUSTER_ANNOUNCE_IP '$CLUSTER_ANNOUNCE_IP' is not an IP and could not be resolved; leaving as-is"
+        fi
+        ;;
+    esac
+    echo " -- CLUSTER_ANNOUNCE_IP After trim: '$CLUSTER_ANNOUNCE_IP'"
+    # Keep legacy IP variable in sync for backward compatibility
+    IP="$CLUSTER_ANNOUNCE_IP"
+
     max_port=$(($INITIAL_PORT + $MASTERS * ( $SLAVES_PER_MASTER  + 1 ) - 1))
     first_standalone=$(($max_port + 1))
     if [ "$STANDALONE" = "true" ]; then
@@ -73,6 +110,7 @@ if [ "$1" = 'redis-cluster' ]; then
         echo "$redis_cluster_template" | \
             sed -e "s/\${BIND_ADDRESS}/${BIND_ADDRESS}/g" \
                 -e "s/\${PORT}/${port}/g" \
+                -e "s/\${CLUSTER_ANNOUNCE_IP}/${CLUSTER_ANNOUNCE_IP}/g" \
             > /redis-conf/${port}/redis.conf
         nodes="$nodes $IP:$port"
       else

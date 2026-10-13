@@ -35,7 +35,8 @@ This is list of available parameters with its default values.
 | `INITIAL_PORT`       |       7000 |
 | `MASTERS`            |          3 |
 | `SLAVES_PER_MASTER`  |          0 | 
-| `IP`                 |    0.0.0.0 | 
+| `IP`                 | `hostname -i` (first non-loopback) |
+| `CLUSTER_ANNOUNCE_IP`  | `$IP` or `hostname -i` (first non-loopback) | 
 | `SENTINEL`           |      false |
 | `STANDALONE`         |      false |
 | `BIND_ADDRESS`       |    0.0.0.0 |
