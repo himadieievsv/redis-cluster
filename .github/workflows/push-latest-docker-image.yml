@@ -21,14 +21,14 @@ jobs:
       - name: Build and push Docker image
         run: |
           
-          response=$(curl -s "https://api.github.com/repos/redis/redis/releases/latest" )
+          response=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/redis/redis/releases/latest" )
           
           major_tag=$(echo "$response" | jq .name -r)
           target_commitish=$(echo "$response" | jq .target_commitish -r)
           
           
-          docker pull "himadieievsv/redis-cluster:$major_tag" > /dev/null 2>&1 || { 
-             echo "Tag exists in the registry"
+          docker pull "himadieievsv/redis-cluster:$major_tag" > /dev/null 2>&1 || {
+             echo "Tag $major_tag does not exist, will build"
              continue_var=true
           }
 
