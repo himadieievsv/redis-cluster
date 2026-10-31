@@ -21,10 +21,14 @@ To use this Docker image, follow these steps:
    ```
    docker pull himadieievsv/redis-cluster:latest
    ```
-2. Run the Redis Cluster container:
+ 2. Run the Redis Cluster container:
    ```
     docker run -d -p 7000-7002:7000-7002 himadieievsv/redis-cluster:latest
    ```
+
+ > **Security note:** This image runs Redis as root with `protected-mode` disabled
+ > and no authentication. It is intended for local development and testing only.
+ > Do not expose these ports to untrusted networks.
 
 ## Cluster generate script parameters 
 
