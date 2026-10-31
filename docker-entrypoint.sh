@@ -94,17 +94,17 @@ if [ "$1" = 'redis-cluster' ]; then
       mkdir -p /redis-conf/${port}
       mkdir -p /redis-data/${port}
 
-      if [ -e /redis-data/${port}/nodes.conf ]; then
-        rm /redis-data/${port}/nodes.conf
-      fi
-
-      if [ -e /redis-data/${port}/dump.rdb ]; then
-        rm /redis-data/${port}/dump.rdb
-      fi
-
-      if [ -e /redis-data/${port}/appendonly.aof ]; then
-        rm /redis-data/${port}/appendonly.aof
-      fi
+#      if [ -e /redis-data/${port}/nodes.conf ]; then
+#        rm /redis-data/${port}/nodes.conf
+#      fi
+#
+#      if [ -e /redis-data/${port}/dump.rdb ]; then
+#        rm /redis-data/${port}/dump.rdb
+#      fi
+#
+#      if [ -e /redis-data/${port}/appendonly.aof ]; then
+#        rm /redis-data/${port}/appendonly.aof
+#      fi
 
       if [ "$port" -lt "$first_standalone" ]; then
         echo "$redis_cluster_template" | \
@@ -122,9 +122,11 @@ if [ "$1" = 'redis-cluster' ]; then
 
       if [ "$port" -lt $(($INITIAL_PORT + $MASTERS)) ]; then
         if [ "$SENTINEL" = "true" ]; then
+          sentinel_quorum=$((MASTERS / 2 + 1))
           echo "$redis_sentinel_template" | \
               sed -e "s/\${SENTINEL_PORT}/$((port - 2000))/g" \
                   -e "s/\${PORT}/${port}/g" \
+                  -e "s/\${SENTINEL_QUORUM}/${sentinel_quorum}/g" \
               > /redis-conf/sentinel-${port}.conf
           cat /redis-conf/sentinel-${port}.conf
         fi
@@ -143,19 +145,27 @@ if [ "$1" = 'redis-cluster' ]; then
     else
       echo "Using redis-cli to create the cluster"
       for port in `seq $INITIAL_PORT $max_port`; do
+        retries=0
         while ! check_service "$BIND_ADDRESS" "$port"; do
+            retries=$((retries + 1))
+            if [ "$retries" -ge 60 ]; then
+              echo "ERROR: Redis did not start on $BIND_ADDRESS:$port after 60 seconds"
+              exit 1
+            fi
             echo "Waiting for Redis to become available on $BIND_ADDRESS:$port..."
             sleep 1
         done
         echo "Redis is available on $BIND_ADDRESS:$port"
         eval redis-cli -h $BIND_ADDRESS -p $port FLUSHALL || true
-        eval redis-cli -h $BIND_ADDRESS -p $port CLUSTER FORGET || true
       done
-      echo "yes" | eval redis-cli --cluster create --cluster-replicas "$SLAVES_PER_MASTER" "$nodes"
+      if ! echo "yes" | eval redis-cli --cluster create --cluster-replicas "$SLAVES_PER_MASTER" "$nodes"; then
+        echo "ERROR: Cluster creation failed"
+        exit 1
+      fi
     fi
 
     if [ "$SENTINEL" = "true" ]; then
-      for port in $(seq $INITIAL_PORT $(($INITIAL_PORT + $MASTERS))); do
+      for port in $(seq $INITIAL_PORT $(($INITIAL_PORT + $MASTERS - 1))); do
         redis-sentinel /redis-conf/sentinel-${port}.conf &
       done
     fi
